@@ -12,7 +12,9 @@ router.get("/", ensureGuest, (req, res) => {
 // @route   GET /dex
 router.get("/dex", ensureAuth, (req, res) => {
   console.log(req.user);
-  res.render("dex");
+  res.render("dex", {
+    name: req.user.firstName,
+  });
 });
 
 module.exports = router;
