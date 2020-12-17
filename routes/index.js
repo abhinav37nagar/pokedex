@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { ensureAuth, ensureGuest } = require("../middleware/auth");
 
+const Pokemon = require("../models/Pokemon");
+
 // @desc    Landing Page
 // @route   GET /
 router.get("/", ensureGuest, (req, res) => {
@@ -10,11 +12,17 @@ router.get("/", ensureGuest, (req, res) => {
 
 // @desc    Dashboard
 // @route   GET /dex
-router.get("/dex", ensureAuth, (req, res) => {
-  console.log(req.user);
-  res.render("dex", {
-    name: req.user.firstName,
-  });
+router.get("/dex", ensureAuth, async (req, res) => {
+  const pokemons = await Pokemon.find().lean();
+  try {
+    res.render("dex", {
+      name: req.user.firstName,
+      pokemons,
+    });
+  } catch (err) {
+    console.error(err);
+    res.render("error/500");
+  }
 });
 
 module.exports = router;
