@@ -23,4 +23,12 @@ router.post("/", ensureAuth, async (req, res) => {
   }
 });
 
+// @desc    Show Pokemon Page
+// @route   GET /pokemons/:id
+router.get("/pokepage/:id", ensureAuth, (req, res) => {
+  res.render("pokemons/pokepage", {
+    id: req.params.id,
+  });
+});
+
 module.exports = router;
