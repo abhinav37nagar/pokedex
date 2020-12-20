@@ -1,11 +1,10 @@
-<div class="container">
-  <h1>Pokedex</h1>
-  <div class="poke-container" id="poke-container"></div>
+<div class="container" id="container">
+  <div class="poke-container-big" id="poke-container-big"></div>
 </div>
 
 <script>
-  const poke_container = document.getElementById("poke-container");
-  const pokemon_count = 30;
+  const container = document.getElementById("container");
+  const poke_container = document.getElementById("poke-container-big");
   const colors = {
     fire: "#FDDFDF",
     grass: "#DEFDE0",
@@ -26,9 +25,7 @@
   const main_types = Object.keys(colors);
 
   const fetchPokemons = async () => {
-    for (let i = 1; i <= pokemon_count; i++) {
-      await getPokemon(i);
-    }
+    await getPokemon({{{ id }}});
   };
 
   const getPokemon = async (id) => {
@@ -39,11 +36,25 @@
     createPokemonCard(data);
   };
 
-  const createPokemonCard = (pokemon) => {
+  async function getSpecies(url) {
+    const res = await fetch(url);
+    const data = await res.json();
+    return data;
+  }
+
+  async function getEvoChain(url) {
+    const res = await fetch(url);
+    const data = await res.json();
+    return data;
+  }
+
+  const createPokemonCard = async (pokemon) => {
     // console.log(pokemon.id);
 
+    const btnEl = document.createElement("div");
     const pokemonEl = document.createElement("div");
-    pokemonEl.classList.add("pokemon");
+    btnEl.classList.add("btns");
+    pokemonEl.classList.add("single-pokemon");
 
     const name = pokemon.name[0].toUpperCase() + pokemon.name.slice(1);
     const id = pokemon.id.toString().padStart(3, "0");
@@ -51,19 +62,28 @@
     const type = main_types.find((type) => poke_types.indexOf(type) > -1);
     const color = colors[type];
     pokemonEl.style.backgroundColor = color;
+    const imageUrl = pokemon.sprites.other.dream_world.front_default.toString();
+    const speciesUrl = pokemon.species.url.toString();
+    const species = await getSpecies(speciesUrl);
+    console.log(species);
+    //const evoUrl = species.evolves_from_species.url.toString();
 
     const pokemonInnerHTML = `
-      <div class="pokemon hovering" id="pokemon${pokemon.id}" style="background-color: rbg(22, 253, 224)">
+      <div class="single-pokemon" id="pokemon${pokemon.id}" style="background-color: rbg(22, 253, 224)">
         <div class="img-container">
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemon.id}.svg" alt="">
+          <img src="${imageUrl}" alt="">
         </div>
         <div class="info">
           <span class="number">#${id}</span>
           <h3 class="name">${name}</h3>
-        <small class="type">Type: <span>${type}</span> </small>
+          <small class="type">Type: <span>${type}</span> </small>
+        </div>
+        <div class="btns">
+          <button class = "btn" style="background-color: ${color}">Info</button>
+          <button class = "btn" style="background-color: ${color}">Evo</button>
         </div>
       </div>
-  `;
+    `;
 
     pokemonEl.innerHTML = pokemonInnerHTML;
 
@@ -72,6 +92,8 @@
     });
 
     poke_container.appendChild(pokemonEl);
+    poke_container.appendChild(btnEl);
+
   };
 
   fetchPokemons();
